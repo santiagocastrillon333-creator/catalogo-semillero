@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  padding: 24px;
+}
+
+.encabezado {
+  margin-bottom: 24px;
+}
+
+button,
+select {
+  padding: 8px 12px;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.filtros {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.resumen-carrito {
+  margin-bottom: 28px;
+  padding: 16px;
+  background-color: #f2f5f8;
+  border-radius: 8px;
+}
+
+.resumen-carrito h2 {
+  margin-top: 0;
+}
+
+.grilla-productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.estado-vacio {
+  padding: 24px;
+  text-align: center;
+  color: #555;
+  border: 1px dashed #aaa;
+  border-radius: 8px;
+}

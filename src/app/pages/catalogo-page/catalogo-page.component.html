@@ -1,0 +1,85 @@
+<header class="encabezado">
+  <h1>Catálogo de productos</h1>
+
+  <p>
+    Vista actual:
+    <strong>
+      {{ rol() === 'admin' ? 'Administrador' : 'Cliente' }}
+    </strong>
+  </p>
+
+  <button type="button" (click)="alternarRol()">
+    Cambiar a vista:
+    {{ rol() === 'admin' ? 'cliente' : 'administrador' }}
+  </button>
+</header>
+
+<!-- Filtro por categoría -->
+<section class="filtros">
+  <label for="categoria">Filtrar por categoría:</label>
+
+  <select
+    id="categoria"
+    [value]="categoriaSeleccionada() ?? ''"
+    (change)="cambiarCategoria($event)"
+  >
+    <option value="">Todas las categorías</option>
+
+    <option
+      *ngFor="let categoria of categorias(); trackBy: trackByCategoriaId"
+      [value]="categoria.id"
+    >
+      {{ categoria.name }}
+    </option>
+  </select>
+</section>
+
+<!-- Resumen del carrito -->
+<section class="resumen-carrito">
+  <h2>Carrito</h2>
+
+  <p>Ítems: {{ cantidadItemsCarrito() }}</p>
+
+  <p>
+    Total:
+    {{ totalCarrito() | currency:'COP':'symbol':'1.0-0':'es-CO' }}
+  </p>
+</section>
+
+<!-- Cambia la vista con base al rol -->
+<div [ngSwitch]="rol()">
+
+  <!-- Vista de administrador -->
+  <section *ngSwitchCase="'admin'">
+    <h2>Administración de productos</h2>
+
+    <app-tabla-productos
+      [productos]="productosFiltrados()"
+      (editar)="editarProducto($event)"
+      (eliminar)="eliminarProducto($event)"
+    ></app-tabla-productos>
+  </section>
+
+  <!-- Vista de cliente -->
+  <section *ngSwitchCase="'customer'">
+    <h2>Productos disponibles</h2>
+
+    <div
+      class="grilla-productos"
+      *ngIf="productosFiltrados().length > 0; else listaVacia"
+    >///Escuchar el output de la tarjeta
+      <app-tarjeta-producto
+        *ngFor="let producto of productosFiltrados(); trackBy: trackById"
+        [producto]="producto"
+        (productoAgregado)="agregarAlCarrito($event)"
+      ></app-tarjeta-producto>
+    </div>
+    ///Estado vacío
+    <ng-template #listaVacia>
+      <p class="estado-vacio">
+        No hay productos en esta categoría.
+      </p>
+    </ng-template>
+  </section>
+
+</div>

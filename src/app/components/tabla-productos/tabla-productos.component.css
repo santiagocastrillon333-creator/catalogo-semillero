@@ -1,0 +1,57 @@
+.contenedor-tabla {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f5f8;
+  font-weight: bold;
+}
+
+.miniatura {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+}
+
+.acciones {
+  white-space: nowrap;
+}
+
+button {
+  margin-right: 6px;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.boton-editar {
+  background-color: #1769aa;
+}
+
+.boton-eliminar {
+  background-color: #c62828;
+}
+
+.estado-vacio {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+  border: 1px dashed #aaa;
+  border-radius: 8px;
+}

@@ -1,0 +1,67 @@
+<!-- Se muestra la tabla cuando hay productos. -->
+<div class="contenedor-tabla" *ngIf="productos.length > 0; else listaVacia">
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Miniatura</th>
+        <th>Título</th>
+        <th>Categoría</th>
+        <th>Precio</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <!-- Se genera una fila por producto. -->
+      <tr *ngFor="let producto of productos; trackBy: trackById">
+
+        <td>{{ producto.id }}</td>
+
+        <td>
+          <img
+            class="miniatura"
+            [src]="producto.images[0]"
+            [alt]="producto.title"
+          >
+        </td>
+
+        <td>{{ producto.title }}</td>
+
+        <td>{{ producto.category.name }}</td>
+
+        <td>
+          {{ producto.price | currency:'COP':'symbol':'1.0-0':'es-CO' }}
+        </td>
+
+        <td class="acciones">
+          <button
+            type="button"
+            class="boton-editar"
+            (click)="solicitarEdicion(producto)"
+          >
+            Editar
+          </button>
+
+          <button
+            type="button"
+            class="boton-eliminar"
+            (click)="solicitarEliminacion(producto)"
+          >
+            Eliminar
+          </button>
+        </td>
+
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<!-- mensje para cuando la lista este vacia -->
+<ng-template #listaVacia>
+  <p class="estado-vacio">
+    No hay productos para mostrar.
+  </p>
+</ng-template>

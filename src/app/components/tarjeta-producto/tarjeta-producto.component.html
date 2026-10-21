@@ -1,0 +1,43 @@
+<article class="tarjeta">
+
+  <!-- Imagen del producto -->
+  <img
+    class="imagen-producto"
+    [src]="producto.images[0]"
+    [alt]="producto.title"
+  >
+
+  <div class="contenido">
+
+    <!-- Nombre del producto -->
+    <h2>{{ producto.title }}</h2>
+
+    <!-- Nombre de la categoría -->
+    <p class="categoria">
+      {{ producto.category.name }}
+    </p>
+
+    <!-- Precio del producto -->
+    <p class="precio">
+      {{ producto.price | currency:'COP':'symbol':'1.0-0':'es-CO' }}
+    </p>
+
+    <!-- Insignia visible únicamente cuando no hay existencias -->
+    <span
+      class="insignia-agotado"
+      *ngIf="producto.stock === 0"
+    >
+      Agotado
+    </span>
+
+    <!-- Emite el producto cuando se hace clic -->
+    <button
+      type="button"
+      (click)="agregarAlCarrito()"
+      [disabled]="producto.stock === 0"
+    >
+      Agregar al carrito
+    </button>
+
+  </div>
+</article>
