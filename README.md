@@ -50,7 +50,7 @@ ng build
 - 'src/app/components/': componentes reutilizables.
 - 'src/app/pages/': páginas y componentes contenedores.
 
-### Preguntas de sustentación
+### Preguntas de sustentación Taller 01
 En la sustentación vas a responder, sobre tu propio código:
 1. ¿Por qué TarjetaProductoComponent emite un evento en vez de agregar el producto al carrito directamente? ¿Qué se rompería si lo hiciera?
 RTA/porque el componente de lka tarjketa es de presentació y su responsabilidad es mostrar un producto y emitir un evento cuando el usuario pulsa «Agregar al carrito» y es el componente padre, "CatalogoPageComponent", quien recibe ese evento y actualiza el carrito o el que determina el comportamiento.
@@ -67,3 +67,32 @@ Ambos permiten recibir datos del componente padre al hijo, pero funcionan distin
 - @Input() recibe el dato en una propiedad normal.
 - Signal input, declarado con input(), recibe el dato mediante un signal de solo lectura.
 En el taller usamos @Input() porque trabajamos con Angular 17 y los requisitos piden expresamente la API de decoradores. En Angular 17, los signal inputs estaban en fase Developer Preview, mientras que la API tradicional seguía siendo estable y compatible.
+
+### Preguntas de sustentacion Taller 02
+
+1. ¿Por qué tu servicio devuelve un Observable en vez de ejecutar la petición y devolver los datos?
+RTA:
+
+Mi servicio devuelve un "Observable" porque la comunicación con la API es asíncrona y la respuesta puede tardar. El "Observable" representa esa operación y permite recibir los datos cuando llegan, gestionar errores y utilizar operadores de RxJS. Después utilizo el pipe async en la plantilla para recibir los datos sin hacer suscripciones manuales en el componente.
+
+2. Mostrá dónde usás el pipe async. Si usaras el mismo Observable dos veces en esa plantilla, ¿qué pasaría?
+RTA:
+
+Utilizo el pipe async en catalogo-page.component.html para recibir los productos y las categorías:
+<!-- Recibe las categorías del servicio. -->
+<ng-container *ngIf="categorias$ | async as categorias">
+  <!-- Aquí puedo utilizar la lista de categorías. -->
+</ng-container>
+
+<!-- Recibe los productos del servicio. -->
+<ng-container *ngIf="productos$ | async as productos">
+  <!-- Aquí puedo utilizar la lista de productos. -->
+</ng-container>
+
+
+Cada uso de async crea una suscripción, si yo utilizara el mismo "Observable" de "HttpClient" varias veces sin compartirlo, podría generar varias peticiones HTTP. En mi servicio utilizo "shareReplay()" para compartir el resultado entre suscriptores concurrentes y evitar solicitudes duplicadas innecesarias.
+
+3. ¿Por qué productos en CarritoService está expuesto con asReadonly()?
+RTA:
+
+Porque quiero que los componentes puedan consultar los productos del carrito, pero no modificarlos directamente. Por eso utilizo "asReadonly()", que expone el signal para lectura. Las modificaciones se hacen mediante los métodos "agregar()", "quitar()" y "vaciar()" del servicio, que también guardan los cambios en "LocalStorage".

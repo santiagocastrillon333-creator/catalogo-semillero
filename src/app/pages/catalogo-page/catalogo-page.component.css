@@ -1,14 +1,19 @@
+/* Contenedor principal del componente. */
 :host {
   display: block;
   padding: 24px;
 }
 
+/* Encabezado. */
 .encabezado {
   margin-bottom: 24px;
 }
 
+/* Controles generales. */
 button,
-select {
+select,
+input,
+textarea {
   padding: 8px 12px;
   font: inherit;
 }
@@ -17,6 +22,7 @@ button {
   cursor: pointer;
 }
 
+/* Filtro por categoría. */
 .filtros {
   display: flex;
   align-items: center;
@@ -25,6 +31,7 @@ button {
   margin-bottom: 24px;
 }
 
+/* Resumen del carrito. */
 .resumen-carrito {
   margin-bottom: 28px;
   padding: 16px;
@@ -36,16 +43,76 @@ button {
   margin-top: 0;
 }
 
+/* Grilla de tarjetas. */
 .grilla-productos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
 }
 
+/* Formularios de creación y edición. */
+.formulario {
+  display: grid;
+  gap: 10px;
+  max-width: 520px;
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.formulario h3 {
+  margin-top: 0;
+}
+
+.formulario label {
+  font-weight: 600;
+}
+
+.formulario input,
+.formulario select,
+.formulario textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+}
+
+.formulario textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* Estado vacío. */
 .estado-vacio {
   padding: 24px;
   text-align: center;
   color: #555;
   border: 1px dashed #aaa;
+  border-radius: 8px;
+}
+
+/* Estado de carga. */
+.estado-carga {
+  padding: 16px;
+  text-align: center;
+  color: #1769aa;
+}
+
+/* Mensajes de error visibles. */
+.error {
+  padding: 16px;
+  color: #b00020;
+  background-color: #ffe0e0;
+  border: 1px solid #f5b5b5;
+  border-radius: 8px;
+}
+
+/* Mensajes de operación exitosa. */
+.exito {
+  padding: 16px;
+  color: #176b36;
+  background-color: #e2f5e8;
+  border: 1px solid #a8d9b6;
   border-radius: 8px;
 }

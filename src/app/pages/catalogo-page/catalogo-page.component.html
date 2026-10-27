@@ -14,72 +14,219 @@
   </button>
 </header>
 
-<!-- Filtro por categoría -->
+<!-- RESULTADO DE CREAR, EDITAR O ELIMINAR -->
+<!-- async mantiene activa la escucha de las operaciones sin subscribe manual. -->
+<ng-container *ngIf="resultadoOperacion$ | async as resultado">
+  <p
+    *ngIf="resultado"
+    role="status"
+    [class.exito]="resultado.tipo === 'exito'"
+    [class.error]="resultado.tipo === 'error'"
+  >
+    {{ resultado.mensaje }}
+  </p>
+</ng-container>
+
+<!-- ERRORES DE VALIDACIÓN DE LOS FORMULARIOS -->
+<p *ngIf="errorFormulario()" class="error" role="alert">
+  {{ errorFormulario() }}
+</p>
+
+<!-- FILTRO POR CATEGORÍA -->
 <section class="filtros">
   <label for="categoria">Filtrar por categoría:</label>
 
-  <select
-    id="categoria"
-    [value]="categoriaSeleccionada() ?? ''"
-    (change)="cambiarCategoria($event)"
+  <ng-container
+    *ngIf="categorias$ | async as categorias; else cargandoCategorias"
   >
-    <option value="">Todas las categorías</option>
-
-    <option
-      *ngFor="let categoria of categorias(); trackBy: trackByCategoriaId"
-      [value]="categoria.id"
+    <select
+      id="categoria"
+      [value]="categoriaSeleccionada() ?? ''"
+      (change)="cambiarCategoria($event)"
     >
-      {{ categoria.name }}
-    </option>
-  </select>
+      <option value="">Todas las categorías</option>
+
+      <option
+        *ngFor="let categoria of categorias; trackBy: trackByCategoriaId"
+        [value]="categoria.id"
+      >
+        {{ categoria.name }}
+      </option>
+    </select>
+
+    <p *ngIf="categorias.length === 0" class="estado-vacio">
+      No hay categorías disponibles.
+    </p>
+  </ng-container>
+
+  <ng-template #cargandoCategorias>
+    <p class="estado-carga">Cargando categorías...</p>
+  </ng-template>
 </section>
 
-<!-- Resumen del carrito -->
+<!-- RESUMEN DEL CARRITO -->
 <section class="resumen-carrito">
   <h2>Carrito</h2>
-
   <p>Ítems: {{ cantidadItemsCarrito() }}</p>
-
   <p>
     Total:
     {{ totalCarrito() | currency:'COP':'symbol':'1.0-0':'es-CO' }}
   </p>
+
+  <!-- Permite vaciar el carrito persistido. -->
+  <button
+    type="button"
+    (click)="carritoServiceVacio()"
+    [disabled]="cantidadItemsCarrito() === 0"
+  >
+    Vaciar carrito
+  </button>
 </section>
 
-<!-- Cambia la vista con base al rol -->
-<div [ngSwitch]="rol()">
+<!-- PRODUCTOS -->
+<ng-container
+  *ngIf="productos$ | async as productos; else cargandoProductos"
+>
+  <!-- Si la consulta falla, mostramos el error en lugar del estado vacío. -->
+  <ng-container
+    *ngIf="!errorCatalogo(); else errorCatalogoTemplate"
+  >
+    <div [ngSwitch]="rol()">
 
-  <!-- Vista de administrador -->
-  <section *ngSwitchCase="'admin'">
-    <h2>Administración de productos</h2>
+      <!-- VISTA DE ADMINISTRADOR -->
+      <section *ngSwitchCase="'admin'">
+        <h2>Administración de productos</h2>
 
-    <app-tabla-productos
-      [productos]="productosFiltrados()"
-      (editar)="editarProducto($event)"
-      (eliminar)="eliminarProducto($event)"
-    ></app-tabla-productos>
-  </section>
+        <!-- FORMULARIO DE CREACIÓN -->
+        <section class="formulario">
+          <h3>Crear producto</h3>
 
-  <!-- Vista de cliente -->
-  <section *ngSwitchCase="'customer'">
-    <h2>Productos disponibles</h2>
+          <label for="nuevoTitulo">Título</label>
+          <input
+            id="nuevoTitulo"
+            type="text"
+            [value]="nuevoTitulo()"
+            (input)="cambiarNuevoTitulo($event)"
+          />
 
-    <div
-      class="grilla-productos"
-      *ngIf="productosFiltrados().length > 0; else listaVacia"
-    >///Escuchar el output de la tarjeta
-      <app-tarjeta-producto
-        *ngFor="let producto of productosFiltrados(); trackBy: trackById"
-        [producto]="producto"
-        (productoAgregado)="agregarAlCarrito($event)"
-      ></app-tarjeta-producto>
+          <label for="nuevoPrecio">Precio</label>
+          <input
+            id="nuevoPrecio"
+            type="number"
+            min="1"
+            [value]="nuevoPrecio()"
+            (input)="cambiarNuevoPrecio($event)"
+          />
+
+          <label for="nuevaDescripcion">Descripción</label>
+          <textarea
+            id="nuevaDescripcion"
+            [value]="nuevaDescripcion()"
+            (input)="cambiarNuevaDescripcion($event)"
+          ></textarea>
+
+          <label for="nuevaCategoria">Categoría</label>
+          <select
+            id="nuevaCategoria"
+            [value]="nuevaCategoriaId() ?? ''"
+            (change)="cambiarNuevaCategoria($event)"
+          >
+            <option value="">Selecciona una categoría</option>
+
+            <ng-container *ngIf="categorias$ | async as categorias">
+              <option
+                *ngFor="let categoria of categorias; trackBy: trackByCategoriaId"
+                [value]="categoria.id"
+              >
+                {{ categoria.name }}
+              </option>
+            </ng-container>
+          </select>
+
+          <label for="nuevaImagen">URL de la imagen</label>
+          <input
+            id="nuevaImagen"
+            type="url"
+            [value]="nuevaImagen()"
+            (input)="cambiarNuevaImagen($event)"
+          />
+
+          <button type="button" (click)="crearProducto()">
+            Guardar producto
+          </button>
+        </section>
+
+        <!-- FORMULARIO DE EDICIÓN -->
+        <section class="formulario" *ngIf="productoEnEdicion() as producto">
+          <h3>Editar: {{ producto.title }}</h3>
+
+          <label for="tituloEdicion">Título</label>
+          <input
+            id="tituloEdicion"
+            type="text"
+            [value]="tituloEdicion()"
+            (input)="cambiarTituloEdicion($event)"
+          />
+
+          <label for="precioEdicion">Precio</label>
+          <input
+            id="precioEdicion"
+            type="number"
+            min="1"
+            [value]="precioEdicion()"
+            (input)="cambiarPrecioEdicion($event)"
+          />
+
+          <button type="button" (click)="guardarEdicion()">
+            Guardar cambios
+          </button>
+
+          <button type="button" (click)="cancelarEdicion()">
+            Cancelar
+          </button>
+        </section>
+
+        <!-- La tabla recibe los productos devueltos por la API. -->
+        <app-tabla-productos
+          [productos]="productos"
+          (editar)="editarProducto($event)"
+          (eliminar)="eliminarProducto($event)"
+        ></app-tabla-productos>
+      </section>
+
+      <!-- VISTA DE CLIENTE -->
+      <section *ngSwitchCase="'customer'">
+        <h2>Productos disponibles</h2>
+
+        <div
+          class="grilla-productos"
+          *ngIf="productos.length > 0; else listaVacia"
+        >
+          <app-tarjeta-producto
+            *ngFor="let producto of productos; trackBy: trackById"
+            [producto]="producto"
+            (productoAgregado)="agregarAlCarrito($event)"
+          ></app-tarjeta-producto>
+        </div>
+
+        <ng-template #listaVacia>
+          <p class="estado-vacio">
+            No hay productos en esta categoría.
+          </p>
+        </ng-template>
+      </section>
+
     </div>
-    ///Estado vacío
-    <ng-template #listaVacia>
-      <p class="estado-vacio">
-        No hay productos en esta categoría.
-      </p>
-    </ng-template>
-  </section>
+  </ng-container>
+</ng-container>
 
-</div>
+<!-- ESTADO DE CARGA -->
+<ng-template #cargandoProductos>
+  <p class="estado-carga">Cargando productos...</p>
+</ng-template>
+
+<ng-template #errorCatalogoTemplate>
+  <p class="error" role="alert">
+    {{ errorCatalogo() }}
+  </p>
+</ng-template>
