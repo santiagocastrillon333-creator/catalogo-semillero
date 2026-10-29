@@ -1,0 +1,12 @@
+<main class="admin-layout">
+  <header class="admin-encabezado">
+    <h1>Administración</h1>
+    <nav aria-label="Navegación administrativa">
+      <a routerLink="/admin/productos">Productos</a>
+      <a routerLink="/admin/productos/nuevo">Crear producto</a>
+    </nav>
+  </header>
+
+  <!-- Renderizar la ruta hija dentro del contenedor administrativo. -->
+  <router-outlet></router-outlet>
+</main>

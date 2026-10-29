@@ -1,4 +1,4 @@
-<header class="encabezado">
+<section class="encabezado-catalogo">
   <h1>Catálogo de productos</h1>
 
   <p>
@@ -12,7 +12,7 @@
     Cambiar a vista:
     {{ rol() === 'admin' ? 'cliente' : 'administrador' }}
   </button>
-</header>
+</section>
 
 <!-- RESULTADO DE CREAR, EDITAR O ELIMINAR -->
 <!-- async mantiene activa la escucha de las operaciones sin subscribe manual. -->
@@ -85,7 +85,7 @@
 
 <!-- PRODUCTOS -->
 <ng-container
-  *ngIf="productos$ | async as productos; else cargandoProductos"
+  *ngIf="productos$ | async as pagina; else cargandoProductos"
 >
   <!-- Si la consulta falla, mostramos el error en lugar del estado vacío. -->
   <ng-container
@@ -188,7 +188,7 @@
 
         <!-- La tabla recibe los productos devueltos por la API. -->
         <app-tabla-productos
-          [productos]="productos"
+          [productos]="pagina.productos"
           (editar)="editarProducto($event)"
           (eliminar)="eliminarProducto($event)"
         ></app-tabla-productos>
@@ -200,10 +200,10 @@
 
         <div
           class="grilla-productos"
-          *ngIf="productos.length > 0; else listaVacia"
+          *ngIf="pagina.productos.length > 0; else listaVacia"
         >
           <app-tarjeta-producto
-            *ngFor="let producto of productos; trackBy: trackById"
+            *ngFor="let producto of pagina.productos; trackBy: trackById"
             [producto]="producto"
             (productoAgregado)="agregarAlCarrito($event)"
           ></app-tarjeta-producto>
@@ -217,6 +217,34 @@
       </section>
 
     </div>
+
+    <!-- Exponer controles de paginación solo cuando existen varias páginas. -->
+    <nav
+      class="paginacion"
+      *ngIf="pagina.totalPaginas > 1"
+      aria-label="Paginación del catálogo"
+    >
+      <button
+        type="button"
+        (click)="cambiarPagina(pagina.paginaActual - 1)"
+        [disabled]="pagina.paginaActual === 1"
+      >
+        Anterior
+      </button>
+
+      <span>
+        Página {{ pagina.paginaActual }} de {{ pagina.totalPaginas }}
+        ({{ pagina.totalProductos }} productos)
+      </span>
+
+      <button
+        type="button"
+        (click)="cambiarPagina(pagina.paginaActual + 1)"
+        [disabled]="pagina.paginaActual === pagina.totalPaginas"
+      >
+        Siguiente
+      </button>
+    </nav>
   </ng-container>
 </ng-container>
 

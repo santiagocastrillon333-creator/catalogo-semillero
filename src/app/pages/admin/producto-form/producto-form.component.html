@@ -1,0 +1,76 @@
+<section class="formulario-producto">
+  <h2>{{ productoId === null ? 'Crear producto' : 'Editar producto' }}</h2>
+
+  <p *ngIf="mensajeError" class="mensaje-error" role="alert">
+    {{ mensajeError }}
+  </p>
+  <p *ngIf="mensajeExito" class="mensaje-exito" role="status">
+    {{ mensajeExito }}
+  </p>
+
+  <form (ngSubmit)="guardar()">
+    <label for="producto-titulo">Título</label>
+    <input
+      id="producto-titulo"
+      name="titulo"
+      [(ngModel)]="titulo"
+      (ngModelChange)="marcarCambios()"
+      required
+    >
+
+    <label for="producto-precio">Precio</label>
+    <input
+      id="producto-precio"
+      name="precio"
+      type="number"
+      min="1"
+      [(ngModel)]="precio"
+      (ngModelChange)="marcarCambios()"
+      required
+    >
+
+    <label for="producto-descripcion">Descripción</label>
+    <textarea
+      id="producto-descripcion"
+      name="descripcion"
+      [(ngModel)]="descripcion"
+      (ngModelChange)="marcarCambios()"
+      required
+    ></textarea>
+
+    <label for="producto-categoria">Categoría</label>
+    <select
+      id="producto-categoria"
+      name="categoriaId"
+      [(ngModel)]="categoriaId"
+      (ngModelChange)="marcarCambios()"
+      required
+    >
+      <option [ngValue]="null">Selecciona una categoría</option>
+      <ng-container *ngIf="categorias$ | async as categorias">
+        <option *ngFor="let categoria of categorias" [ngValue]="categoria.id">
+          {{ categoria.name }}
+        </option>
+      </ng-container>
+    </select>
+
+    <label for="producto-imagen">URL de la imagen</label>
+    <input
+      id="producto-imagen"
+      name="imagen"
+      type="url"
+      [(ngModel)]="imagen"
+      (ngModelChange)="marcarCambios()"
+      required
+    >
+
+    <div class="acciones-formulario">
+      <button type="submit" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+      <button type="button" (click)="descartarCambios()">
+        Cancelar y descartar
+      </button>
+    </div>
+  </form>
+</section>

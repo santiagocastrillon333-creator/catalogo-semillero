@@ -1,0 +1,33 @@
+<main class="pagina-carrito">
+  <h1>Carrito de compras</h1>
+
+  <ng-container *ngIf="productos() as items">
+    <p *ngIf="items.length === 0" class="estado-vacio">
+      El carrito está vacío.
+    </p>
+
+    <ng-container *ngIf="items.length > 0">
+      <ul class="lista-carrito">
+        <li *ngFor="let producto of items">
+          <img
+            [src]="producto.images[0] || 'https://placehold.co/120x120?text=Producto'"
+            [alt]="producto.title"
+          >
+          <div class="datos-item">
+            <h2>{{ producto.title }}</h2>
+            <p>{{ producto.price | currency:'COP':'symbol':'1.0-0':'es-CO' }}</p>
+          </div>
+          <button type="button" (click)="quitar(producto.id)">
+            Eliminar
+          </button>
+        </li>
+      </ul>
+
+      <section class="resumen-carrito" aria-label="Resumen del carrito">
+        <p>Unidades: {{ cantidad() }}</p>
+        <p>Total: {{ total() | currency:'COP':'symbol':'1.0-0':'es-CO' }}</p>
+        <button type="button" (click)="vaciar()">Vaciar carrito</button>
+      </section>
+    </ng-container>
+  </ng-container>
+</main>

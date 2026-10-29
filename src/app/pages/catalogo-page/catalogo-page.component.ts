@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import {
   Observable,
@@ -66,6 +67,66 @@ interface ResultadoOperacion {
 })
 export class CatalogoPageComponent {
 
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+
+  // Representar el estado de filtros y paginación reflejado en la URL.
+  private readonly estadoUrl$ = this.route.queryParamMap.pipe(
+    map(parametros => {
+      const categoriaOriginal = parametros.get('categoria');
+      const paginaOriginal = parametros.get('pagina');
+      const categoriaNumero = categoriaOriginal === null
+        ? null
+        : Number(categoriaOriginal);
+      const paginaNumero = paginaOriginal === null
+        ? 1
+        : Number(paginaOriginal);
+      const categoriaId = Number.isInteger(categoriaNumero) && categoriaNumero! > 0
+        ? categoriaNumero
+        : null;
+      const pagina = Number.isInteger(paginaNumero) && paginaNumero! > 0
+        ? paginaNumero
+        : 1;
+
+      return {
+        categoriaOriginal,
+        paginaOriginal,
+        categoriaId,
+        pagina,
+      };
+    }),
+    tap(estado => {
+      // Eliminar categorías inválidas y normalizar páginas no válidas en la URL.
+      const categoriaValida = estado.categoriaOriginal === null ||
+        estado.categoriaId !== null;
+      const paginaValida = estado.paginaOriginal === null ||
+        (estado.paginaOriginal.trim() !== '' &&
+          Number.isInteger(Number(estado.paginaOriginal)) &&
+          Number(estado.paginaOriginal) > 0);
+      const categoriaNormalizada = estado.categoriaOriginal !== null &&
+        estado.categoriaId !== null &&
+        String(estado.categoriaId) !== estado.categoriaOriginal;
+      const paginaNormalizada = estado.paginaOriginal !== null &&
+        String(estado.pagina) !== estado.paginaOriginal;
+
+      if (!categoriaValida || !paginaValida ||
+          categoriaNormalizada || paginaNormalizada) {
+        void this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: {
+            categoria: categoriaValida ? estado.categoriaId : null,
+            pagina: paginaValida ? estado.pagina : 1,
+          },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
+      }
+    }),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
+  private readonly tamanoPagina = 8;
+
   // ------------------------------------
   // SERVICIOS
   // ------------------------------------
@@ -102,12 +163,6 @@ export class CatalogoPageComponent {
   // Permite solicitar una nueva consulta después de guardar cambios.
   private readonly recargarCatalogo$ = new Subject<void>();
 
-  private readonly categoriaSeleccionada$ =
-    toObservable(this.categoriaSeleccionada).pipe(
-      distinctUntilChanged()
-    );
-
-
   // ------------------------------------
   // CATEGORÍAS DESDE LA API
   // ------------------------------------
@@ -123,9 +178,12 @@ export class CatalogoPageComponent {
   // PRODUCTOS DESDE LA API
   // ------------------------------------
 
-  readonly productos$: Observable<Producto[] | null> =
+  private readonly productosFiltrados$: Observable<Producto[] | null> =
     combineLatest([
-      this.categoriaSeleccionada$,
+      this.estadoUrl$.pipe(
+        map(estado => estado.categoriaId),
+        distinctUntilChanged()
+      ),
       this.recargarCatalogo$.pipe(startWith(undefined))
     ]).pipe(
       switchMap(([categoryId]) => {
@@ -142,6 +200,65 @@ export class CatalogoPageComponent {
       }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
+  // Calcular la página local y corregir la URL si excede el rango disponible.
+  readonly productos$: Observable<{
+    productos: Producto[];
+    paginaActual: number;
+    totalPaginas: number;
+    totalProductos: number;
+  } | null> = combineLatest([
+    this.productosFiltrados$,
+    this.estadoUrl$
+  ]).pipe(
+    map(([productos, estado]) => {
+      if (productos === null) {
+        return null;
+      }
+
+      const totalPaginas = Math.max(
+        1,
+        Math.ceil(productos.length / this.tamanoPagina)
+      );
+      const paginaActual = Math.min(estado.pagina, totalPaginas);
+      const inicio = (paginaActual - 1) * this.tamanoPagina;
+
+      return {
+        productos: productos.slice(inicio, inicio + this.tamanoPagina),
+        paginaActual,
+        totalPaginas,
+        totalProductos: productos.length,
+      };
+    }),
+    tap(resultado => {
+      const estado = this.ultimoEstadoUrl;
+      if (resultado !== null && estado !== null &&
+          resultado.paginaActual !== estado.pagina) {
+        void this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { pagina: resultado.paginaActual },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
+      }
+    }),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
+  private ultimoEstadoUrl: { categoriaId: number | null; pagina: number } | null = null;
+
+  constructor() {
+    // Sincronizar los controles una vez inicializado el estado del componente.
+    this.estadoUrl$
+      .pipe(takeUntilDestroyed())
+      .subscribe(estado => {
+        this.ultimoEstadoUrl = {
+          categoriaId: estado.categoriaId,
+          pagina: estado.pagina,
+        };
+        this.categoriaSeleccionada.set(estado.categoriaId);
+      });
+  }
 
 
   // ------------------------------------
@@ -181,7 +298,7 @@ export class CatalogoPageComponent {
 
         return peticion$.pipe(
           tap(() => {
-            // Recargamos el catálogo después de una operación exitosa.
+            // Solicitar una nueva consulta después de una operación exitosa.
             this.recargarCatalogo$.next();
 
             if (solicitud.tipo === 'actualizar') {
@@ -261,7 +378,7 @@ export class CatalogoPageComponent {
       datos
     });
 
-    // Limpiamos los campos después de enviar la solicitud.
+    // Restablecer los campos después de enviar la solicitud.
     this.nuevoTitulo.set('');
     this.nuevoPrecio.set(0);
     this.nuevaDescripcion.set('');
@@ -374,10 +491,28 @@ export class CatalogoPageComponent {
 
   cambiarCategoria(event: Event): void {
     const valor = (event.target as HTMLSelectElement).value;
+    const categoriaId = valor === '' ? null : Number(valor);
 
-    this.categoriaSeleccionada.set(
-      valor === '' ? null : Number(valor)
-    );
+    // Actualizar la URL y reiniciar la página al cambiar de categoría.
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        categoria: Number.isInteger(categoriaId) && categoriaId! > 0
+          ? categoriaId
+          : null,
+        pagina: 1,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  cambiarPagina(pagina: number): void {
+    // Mantener el filtro actual al cambiar la página del catálogo.
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { pagina },
+      queryParamsHandling: 'merge',
+    });
   }
 
 
@@ -386,7 +521,7 @@ export class CatalogoPageComponent {
   // ------------------------------------
 
   agregarAlCarrito(producto: Producto): void {
-    // No agregamos productos sin existencias.
+    // Evitar agregar productos sin existencias.
     if (producto.stock === 0) {
       return;
     }

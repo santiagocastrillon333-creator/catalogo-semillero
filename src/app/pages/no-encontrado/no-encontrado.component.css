@@ -1,0 +1,9 @@
+.pagina-no-encontrada {
+  max-width: 720px;
+  margin: 48px auto;
+  padding: 0 24px;
+}
+
+.pagina-no-encontrada a {
+  color: #1769aa;
+}

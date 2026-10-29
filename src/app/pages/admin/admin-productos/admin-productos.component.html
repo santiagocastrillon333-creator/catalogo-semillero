@@ -1,0 +1,22 @@
+<section>
+  <h2>Productos</h2>
+
+  <p *ngIf="errorCarga()" class="mensaje-error" role="alert">
+    {{ errorCarga() }}
+  </p>
+  <p *ngIf="errorOperacion()" class="mensaje-error" role="alert">
+    {{ errorOperacion() }}
+  </p>
+
+  <ng-container *ngIf="productos$ | async as productos; else cargando">
+    <app-tabla-productos
+      [productos]="productos"
+      (editar)="editar($event)"
+      (eliminar)="eliminar($event)"
+    ></app-tabla-productos>
+  </ng-container>
+
+  <ng-template #cargando>
+    <p role="status">Cargando productos...</p>
+  </ng-template>
+</section>

@@ -1,0 +1,68 @@
+<main class="detalle-producto">
+  <ng-container *ngIf="detalle$ | async as estado">
+    <p *ngIf="estado.cargando" class="estado-carga" role="status">
+      Cargando producto...
+    </p>
+
+    <section *ngIf="estado.mensajeError" class="mensaje-error" role="alert">
+      <h1>Producto no disponible</h1>
+      <p>{{ estado.mensajeError }}</p>
+      <a routerLink="/productos">Volver al catálogo</a>
+    </section>
+
+    <ng-container *ngIf="estado.producto as producto">
+      <a class="volver" routerLink="/productos">← Volver al catálogo</a>
+
+      <article class="producto-principal">
+        <img
+          class="imagen-principal"
+          [src]="producto.images[0] || 'https://placehold.co/600x600?text=Producto'"
+          [alt]="producto.title"
+        >
+
+        <div class="datos-producto">
+          <p class="categoria">{{ producto.category.name }}</p>
+          <h1>{{ producto.title }}</h1>
+          <p class="precio">
+            {{ producto.price | currency:'COP':'symbol':'1.0-0':'es-CO' }}
+          </p>
+          <p class="descripcion">{{ producto.description }}</p>
+          <p>Unidades disponibles: {{ producto.stock }}</p>
+          <p class="identificador">Código de producto: {{ producto.id }}</p>
+        </div>
+      </article>
+
+      <section class="seccion-relacionados" aria-labelledby="titulo-relacionados">
+        <h2 id="titulo-relacionados">Productos relacionados</h2>
+
+        <p *ngIf="estado.estadoRelacionados === 'cargando'" role="status">
+          Cargando productos relacionados...
+        </p>
+        <p *ngIf="estado.estadoRelacionados === 'error'" role="status">
+          No se pudieron cargar los productos relacionados.
+        </p>
+        <p
+          *ngIf="estado.estadoRelacionados === 'listo' && estado.relacionados.length === 0"
+          class="estado-vacio"
+        >
+          No hay otros productos disponibles en esta categoría.
+        </p>
+
+        <div class="grilla-relacionados" *ngIf="estado.relacionados.length > 0">
+          <a
+            class="tarjeta-relacionado"
+            *ngFor="let relacionado of estado.relacionados"
+            [routerLink]="['/productos', relacionado.id]"
+          >
+            <img
+              [src]="relacionado.images[0] || 'https://placehold.co/300x300?text=Producto'"
+              [alt]="relacionado.title"
+            >
+            <span>{{ relacionado.title }}</span>
+            <span>{{ relacionado.price | currency:'COP':'symbol':'1.0-0':'es-CO' }}</span>
+          </a>
+        </div>
+      </section>
+    </ng-container>
+  </ng-container>
+</main>

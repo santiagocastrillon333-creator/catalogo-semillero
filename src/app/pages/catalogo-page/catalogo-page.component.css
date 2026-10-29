@@ -4,8 +4,8 @@
   padding: 24px;
 }
 
-/* Encabezado. */
-.encabezado {
+/* Mantener separados el título y los controles propios del catálogo. */
+.encabezado-catalogo {
   margin-bottom: 24px;
 }
 
@@ -29,6 +29,16 @@ button {
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 24px;
+}
+
+/* Agrupar los controles y el estado de la paginación local. */
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
 }
 
 /* Resumen del carrito. */

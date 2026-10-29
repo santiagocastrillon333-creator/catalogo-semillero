@@ -1,0 +1,48 @@
+.formulario-producto {
+  max-width: 620px;
+}
+
+.formulario-producto form {
+  display: grid;
+  gap: 10px;
+}
+
+.formulario-producto input,
+.formulario-producto select,
+.formulario-producto textarea,
+.formulario-producto button {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 9px 12px;
+  font: inherit;
+}
+
+.formulario-producto textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.acciones-formulario {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.acciones-formulario button {
+  cursor: pointer;
+}
+
+.mensaje-error,
+.mensaje-exito {
+  padding: 12px;
+}
+
+.mensaje-error {
+  color: #8b1020;
+  background: #ffe8eb;
+}
+
+.mensaje-exito {
+  color: #176b36;
+  background: #e2f5e8;
+}

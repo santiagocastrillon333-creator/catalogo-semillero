@@ -1,0 +1,45 @@
+<header class="encabezado-global">
+  <a class="marca" routerLink="/productos" aria-label="Ir al catálogo de productos">
+    Catálogo Semillero
+  </a>
+
+  <nav aria-label="Navegación principal">
+    <a
+      routerLink="/productos"
+      routerLinkActive="activo"
+      [routerLinkActiveOptions]="{ exact: true }"
+      ariaCurrentWhenActive="page"
+    >
+      Productos
+    </a>
+
+    <a
+      *ngIf="!usuario()"
+      routerLink="/login"
+      routerLinkActive="activo"
+      ariaCurrentWhenActive="page"
+    >
+      Iniciar sesión
+    </a>
+
+    <ng-container *ngIf="usuario() as sesion">
+      <a
+        routerLink="/carrito"
+        routerLinkActive="activo"
+        ariaCurrentWhenActive="page"
+      >
+        Carrito
+      </a>
+      <span class="nombre-usuario">{{ sesion.nombre }}</span>
+      <a
+        *ngIf="esAdministrador()"
+        routerLink="/admin"
+        routerLinkActive="activo"
+        ariaCurrentWhenActive="page"
+      >
+        Administración
+      </a>
+      <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+    </ng-container>
+  </nav>
+</header>

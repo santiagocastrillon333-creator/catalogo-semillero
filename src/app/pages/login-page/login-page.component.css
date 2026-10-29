@@ -1,0 +1,31 @@
+.pagina-login {
+  width: min(100% - 32px, 440px);
+  margin: 48px auto;
+  padding: 24px;
+  border: 1px solid #d9e0e7;
+  border-radius: 8px;
+}
+
+.pagina-login form {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.pagina-login input,
+.pagina-login button {
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.pagina-login button {
+  cursor: pointer;
+}
+
+.pagina-login a {
+  color: #1769aa;
+}
+
+.mensaje-error {
+  color: #8b1020;
+}

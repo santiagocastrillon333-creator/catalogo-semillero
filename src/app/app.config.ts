@@ -8,11 +8,17 @@ import localeEsCo from '@angular/common/locales/es-CO';
 registerLocaleData(localeEsCo);
 import { ApplicationConfig } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
-//habilitar HttpClient en Angular.
+import { provideRouter } from '@angular/router';
+
+// Habilitar HttpClient para realizar solicitudes HTTP.
 import { provideHttpClient } from '@angular/common/http';
+import { routes } from './app.routes';
+
 export const appConfig: ApplicationConfig = {
-  providers: [provideClientHydration(),
-    // Habilitar HttpClient para realizar solicitudes HTTP.
+  providers: [
+    provideClientHydration(),
     provideHttpClient(),
+    // Registrar el proveedor standalone que activa la navegación por rutas.
+    provideRouter(routes),
   ]
 };

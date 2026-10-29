@@ -1,0 +1,65 @@
+.pagina-carrito {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.lista-carrito {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-carrito li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border: 1px solid #d9e0e7;
+  border-radius: 8px;
+}
+
+.lista-carrito img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  background: #f2f5f8;
+}
+
+.datos-item {
+  flex: 1;
+}
+
+.datos-item h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.lista-carrito button,
+.resumen-carrito button {
+  padding: 8px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.resumen-carrito {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f2f5f8;
+  border-radius: 8px;
+}
+
+.estado-vacio {
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed #aaa;
+  border-radius: 8px;
+}
+
+@media (max-width: 560px) {
+  .lista-carrito li {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}

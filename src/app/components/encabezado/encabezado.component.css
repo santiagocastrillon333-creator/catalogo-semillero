@@ -1,0 +1,48 @@
+:host {
+  display: block;
+}
+
+/* Mantener la navegación global separada del contenido de cada ruta. */
+.encabezado-global {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  background-color: #f2f5f8;
+  border-bottom: 1px solid #d9e0e7;
+}
+
+.marca,
+nav a {
+  color: #17324d;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+nav button {
+  padding: 8px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.nombre-usuario {
+  color: #17324d;
+}
+
+nav a {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+nav a.activo {
+  color: #fff;
+  background-color: #1769aa;
+}
